@@ -31,7 +31,7 @@ pipeline {
                 git(
                     branch: 'main',                                    // 🔹 Rama a clonar
                     url: 'https://github.com/mgs-10/web.git', // 🔹 URL de tu repo
-                    credentialsId: 'GITHUB-token'                      // 🔹 Usa el token para autenticar
+                    credentialsId: 'github-token'                      // 🔹 Usa el token para autenticar
                 )
                 
                 // 🔹 Muestra información del commit
