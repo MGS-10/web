@@ -1,9 +1,7 @@
-// 🔹 Jenkinsfile corregido y optimizado
+// 🔹 Jenkinsfile corregido y listo
 pipeline {
-    // 🔹 Ejecuta en cualquier agente disponible
     agent any
 
-    // 🔹 Variables disponibles en todo el pipeline
     environment {
         REGISTRY = "ghcr.io"
         IMAGE_NAME = "${REGISTRY}/mgs-10/web"
@@ -18,7 +16,6 @@ pipeline {
             steps {
                 echo "📥 Descargando código desde GitHub..."
                 
-                // 🔹 Clonamos el repo dentro del workspace de Jenkins
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
@@ -28,7 +25,6 @@ pipeline {
                     ]]
                 ])
 
-                // 🔹 Mostramos estado del repo
                 sh 'git status'
             }
         }
@@ -145,13 +141,10 @@ pipeline {
 
     }
 
-    // 🔹 POST: acciones posteriores a la ejecución
     post {
         always {
-            node {
-                echo "🏁 Pipeline completado - Build #${env.BUILD_NUMBER}"
-                sh 'docker system prune -f || true'
-            }
+            echo "🏁 Pipeline completado - Build #${env.BUILD_NUMBER}"
+            sh 'docker system prune -f || true'
         }
 
         success {
@@ -169,24 +162,21 @@ pipeline {
         }
 
         failure {
-            node {
-                echo "💥 El pipeline falló. Revisar logs."
-                emailext (
-                    subject: "❌ Falla en Pipeline - Build ${env.BUILD_NUMBER}",
-                    body: """
-                    El pipeline falló:
-                    Proyecto: ${env.JOB_NAME}
-                    Build: #${env.BUILD_NUMBER}
-                    URL: ${env.BUILD_URL}
-                    """,
-                    to: "moi_america1999@hotmail.com"
-                )
-
-                sh """
-                    kubectl rollout undo deployment/php-app --timeout=300s || true
-                    echo "🔄 Rollback ejecutado"
-                """
-            }
+            echo "💥 El pipeline falló. Revisar logs."
+            sh """
+                kubectl rollout undo deployment/php-app --timeout=300s || true
+                echo "🔄 Rollback ejecutado"
+            """
+            emailext (
+                subject: "❌ Falla en Pipeline - Build ${env.BUILD_NUMBER}",
+                body: """
+                El pipeline falló:
+                Proyecto: ${env.JOB_NAME}
+                Build: #${env.BUILD_NUMBER}
+                URL: ${env.BUILD_URL}
+                """,
+                to: "moi_america1999@hotmail.com"
+            )
         }
 
         changed {
