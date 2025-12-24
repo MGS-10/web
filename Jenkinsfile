@@ -35,7 +35,7 @@ pipeline {
                 )
                 
                 // 🔹 Muestra información del commit
-                sh 'git log --oneline -5'
+                sh 'git status'
             }
         }
 
